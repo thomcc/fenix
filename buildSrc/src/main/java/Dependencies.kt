@@ -25,8 +25,8 @@ private object Versions {
     const val androidx_recyclerview = "1.1.0-alpha04"
 
     const val appservices_gradle_plugin = "0.4.4"
-    const val mozilla_android_components = "0.51.0-SNAPSHOT"
-    const val mozilla_appservices = "0.26.0"
+    const val mozilla_android_components = "0.51.0-thom0"
+    const val mozilla_appservices = "0.27.0-thom0"
 
     const val autodispose = "1.1.0"
     const val adjust = "4.11.4"
@@ -104,6 +104,7 @@ object Deps {
     const val mozilla_feature_site_permissions = "org.mozilla.components:feature-sitepermissions:${Versions.mozilla_android_components}"
 
     const val mozilla_places = "org.mozilla.appservices:places:${Versions.mozilla_appservices}"
+    const val mozilla_rust_httpconfig = "org.mozilla.appservices:httpconfig:${Versions.mozilla_appservices}"
 
     const val mozilla_service_firefox_accounts = "org.mozilla.components:service-firefox-accounts:${Versions.mozilla_android_components}"
     const val mozilla_service_fretboard = "org.mozilla.components:service-fretboard:${Versions.mozilla_android_components}"

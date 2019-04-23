@@ -24,6 +24,7 @@ import mozilla.components.support.base.log.sink.AndroidLogSink
 import mozilla.components.support.ktx.android.content.isMainProcess
 import mozilla.components.support.ktx.android.content.runOnlyInMainProcess
 import mozilla.components.support.rustlog.RustLog
+import mozilla.appservices.httpconfig.RustHttpConfig
 import org.mozilla.fenix.components.Components
 import org.mozilla.fenix.utils.Settings
 import java.io.File
@@ -110,6 +111,8 @@ open class FenixApplication : Application() {
             // This has to happen after initializing the megazord, and
             // it's only worth doing in the case that we are a megazord.
             RustLog.enable()
+            // This doesn't belong here, but is here as an example
+            RustHttpConfig.setClient(lazy { components.core.client })
         }
     }
 
@@ -163,10 +166,8 @@ open class FenixApplication : Application() {
         // As a workaround, use reflections to conditionally initialize the megazord in case it's present.
         return try {
             val megazordClass = Class.forName("mozilla.appservices.FenixMegazord")
-            val megazordInitMethod = megazordClass.getDeclaredMethod("init", Lazy::class.java)
-            // https://github.com/mozilla-mobile/android-components/issues/2715
-            val client: Lazy<Client> = lazy { HttpURLConnectionClient() }
-            megazordInitMethod.invoke(megazordClass, client)
+            val megazordInitMethod = megazordClass.getDeclaredMethod("init")
+            megazordInitMethod.invoke(megazordClass)
             true
         } catch (e: ClassNotFoundException) {
             Logger.info("mozilla.appservices.FenixMegazord not found; skipping megazord init.")
