@@ -13,6 +13,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import mozilla.appservices.Megazord
+import mozilla.appservices.httpconfig.RustHttpConfig
 import mozilla.components.concept.fetch.Client
 import mozilla.components.lib.fetch.httpurlconnection.HttpURLConnectionClient
 import mozilla.components.service.fretboard.Fretboard
@@ -49,8 +51,9 @@ open class FenixApplication : Application() {
         experimentLoader = loadExperiments()
 
         setDayNightTheme()
-        val megazordEnabled = setupMegazord()
-        setupLogging(megazordEnabled)
+
+        setupMegazord()
+        setupLogging()
         registerRxExceptionHandling()
         setupCrashReporting()
 
@@ -115,16 +118,12 @@ open class FenixApplication : Application() {
         // no-op, LeakCanary is disabled by default
     }
 
-    private fun setupLogging(megazordEnabled: Boolean) {
+    private fun setupLogging() {
         // We want the log messages of all builds to go to Android logcat
         Log.addSink(AndroidLogSink())
-
-        if (megazordEnabled) {
-            // We want rust logging to go through the log sinks.
-            // This has to happen after initializing the megazord, and
-            // it's only worth doing in the case that we are a megazord.
-            RustLog.enable()
-        }
+        // We want rust logging to go through the log sinks.
+        // This has to happen after initializing the megazord.
+        RustLog.enable()
     }
 
     private fun loadExperiments(): Deferred<Boolean> {
@@ -157,6 +156,8 @@ open class FenixApplication : Application() {
     /**
      * Initiate Megazord sequence! Megazord Battle Mode!
      *
+     * TODO(thom) rewrite, possibly add a link to an in-depth doc in a-s repo
+     *
      * Mozilla Application Services publishes many native (Rust) code libraries that stand alone: each published Android
      * ARchive (AAR) contains managed code (classes.jar) and multiple .so library files (one for each supported
      * architecture). That means consuming multiple such libraries entails at least two .so libraries, and each of those
@@ -165,26 +166,10 @@ open class FenixApplication : Application() {
      * elimination, etc).
      * Application Services also publishes composite libraries -- so called megazord libraries or just megazords -- that
      * compose multiple Rust components into a single optimized .so library file.
-     *
-     * @return Boolean indicating if we're in a megazord.
      */
-    private fun setupMegazord(): Boolean {
-        // mozilla.appservices.FenixMegazord will be missing if we're doing an application-services
-        // dependency substitution locally. That class is supplied dynamically by the org.mozilla.appservices
-        // gradle plugin, and that won't happen if we're not megazording. We won't megazord if we're
-        // locally substituting every module that's part of the megazord's definition, which is what
-        // happens during a local substitution of application-services.
-        // As a workaround, use reflections to conditionally initialize the megazord in case it's present.
-        return try {
-            val megazordClass = Class.forName("mozilla.appservices.FenixMegazord")
-            val megazordInitMethod = megazordClass.getDeclaredMethod("init", Lazy::class.java)
-            val client: Lazy<Client> = lazy { components.core.client }
-            megazordInitMethod.invoke(megazordClass, client)
-            true
-        } catch (e: ClassNotFoundException) {
-            Logger.info("mozilla.appservices.FenixMegazord not found; skipping megazord init.")
-            false
-        }
+    private fun setupMegazord() {
+        Megazord.init()
+        RustHttpConfig.setClient(lazy { components.core.client })
     }
 
     override fun onTrimMemory(level: Int) {

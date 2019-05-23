@@ -30,13 +30,13 @@ private object Versions {
     const val androidx_transition = "1.1.0-rc02"
     const val google_material = "1.1.0-alpha07"
 
-    const val mozilla_android_components = "0.56.2"
+    const val mozilla_android_components = "1.0.0-mega1"
     // Note that android-components also depends on application-services,
     // and in fact is our main source of appservices-related functionality.
     // The version number below tracks the application-services version
     // that we depend on directly for tests, and it's important that it
     // be kept in sync with the version used by android-components above.
-    const val mozilla_appservices = "0.31.2"
+    const val mozilla_appservices = "0.32.0-mega2"
 
     const val autodispose = "1.1.0"
     const val adjust = "4.11.4"
@@ -187,7 +187,13 @@ object Deps {
     const val uiautomator = "com.android.support.test.uiautomator:uiautomator-v18:${Versions.uiautomator}"
     const val robolectric = "org.robolectric:robolectric:${Versions.robolectric}"
     const val fragment_testing = "androidx.fragment:fragment-testing:${Versions.androidx_testing}"
-    const val places_forUnitTests = "org.mozilla.appservices:places-forUnitTests:${Versions.mozilla_appservices}"
+    // for specifying as a substitution.
+    const val full_megazord = "org.mozilla.appservices:full-megazord:${Versions.mozilla_appservices}"
+    const val full_megazord_forUnitTests = "org.mozilla.appservices:full-megazord-forUnitTests:${Versions.mozilla_appservices}"
+    const val appservices_httpconfig = "org.mozilla.appservices:httpconfig:${Versions.mozilla_appservices}"
+
+    const val fenix_megazord = "org.mozilla.appservices:fenix-megazord:${Versions.mozilla_appservices}"
+    const val fenix_megazord_forUnitTests = "org.mozilla.appservices:fenix-megazord-forUnitTests:${Versions.mozilla_appservices}"
 
     const val google_ads_id = "com.google.android.gms:play-services-ads-identifier:${Versions.google_ads_id_version}"
 }
