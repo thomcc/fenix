@@ -393,9 +393,23 @@ dependencies {
     testImplementation Deps.junit
     testImplementation Deps.robolectric
     implementation Deps.fragment_testing
-    testImplementation Deps.fenix_megazord_forUnitTests
-    implementation Deps.fenix_megazord
+
+    // For production builds, the native code for all `org.mozilla.appservices` dependencies gets compiled together
+    // into a single "megazord" build, and different megazords are published for different subsets of features.
+    // Ref https://mozilla.github.io/application-services/docs/applications/consuming-megazord-libraries.html
+    // We want to use the one that's specifically designed for Fenix.
     implementation Deps.appservices_httpconfig
+    implementation Deps.fenix_megazord
+    testImplementation Deps.fenix_megazord_forUnitTests
+
+    modules {
+      module('org.mozilla.appservices:full-megazord') {
+        replacedBy('org.mozilla.appservices:fenix-megazord', 'prefer the fenix megazord, to reduce final application size')
+      }
+      module('org.mozilla.appservices:fenix-megazord') {
+        replacedBy('org.mozilla.appservices:fenix-megazord-forUnitTests', 'prefer the forUnitTests variant if present')
+      }
+    }
 
     testImplementation Deps.mockito_core
     androidTestImplementation Deps.mockito_android
@@ -437,26 +451,6 @@ task printGeckoviewVersions {
 // Normally this should use the same version as the glean dependency. But since we are currently using AC snapshots we
 // can't reference a git tag with a specific version here. So we are just using "master" and hoping for the best.
 apply from: 'https://github.com/mozilla-mobile/android-components/raw/master/components/service/glean/scripts/sdk_generator.gradle'
-
-// For production builds, the native code for all `org.mozilla.appservices` dependencies gets compiled together
-// into a single "megazord" build, and different megazords are published for different subsets of features.
-// Ref https://mozilla.github.io/application-services/docs/applications/consuming-megazord-libraries.html
-// Substitute all appservices dependencies with an appropriate megazord.
-
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute module(Deps.full_megazord) with module(Deps.fenix_megazord)
-    }
-}
-
-configurations.testImplementation.resolutionStrategy.dependencySubstitution {
-    // AFAICT doing both of these does actually make a difference, but I don't
-    // know why. The 2nd *seems* like it should be all we need, since we already
-    // replaced full with fenix above... Transitive substitutions don't work
-    // intuitively.
-    substitute module(Deps.full_megazord) with module(Deps.fenix_megazord_forUnitTests)
-    substitute module(Deps.fenix_megazord) with module(Deps.fenix_megazord_forUnitTests)
-}
 
 // afterEvaluate {
 //     preBuild.dependsOn(gradle.includedBuild('application-services').task(':fenix-megazord:cargoBuild'))
