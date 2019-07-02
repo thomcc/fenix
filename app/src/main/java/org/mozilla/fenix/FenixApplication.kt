@@ -15,7 +15,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import mozilla.appservices.Megazord
 import mozilla.appservices.httpconfig.RustHttpConfig
-import mozilla.components.concept.fetch.Client
 import mozilla.components.lib.fetch.httpurlconnection.HttpURLConnectionClient
 import mozilla.components.service.fretboard.Fretboard
 import mozilla.components.service.fretboard.source.kinto.KintoExperimentSource
