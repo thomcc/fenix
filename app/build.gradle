@@ -552,7 +552,7 @@ task printVariants {
 }
 
 def glean_android_components_tag = (
-    Versions.mozilla_android_components.endsWith('-SNAPSHOT') ?
+    Versions.mozilla_android_components.contains('-') ?
         'master' :
         'v' + Versions.mozilla_android_components
 )
